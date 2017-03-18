@@ -13,6 +13,7 @@ import MobileCoreServices
 
 
 class YueImageView : UIImageView {
+    
     /// 防止循环引用
     class TargetProxy {
         private weak var target: YueImageView?
@@ -25,6 +26,7 @@ class YueImageView : UIImageView {
             target?.updateFrame()
         }
     }
+    
     // 是否自动播放
     public var autoPlayAnimatedImage = true
     
@@ -60,17 +62,15 @@ class YueImageView : UIImageView {
         didSet{
             if let gifData = gifData {
                 animator = nil
-                animator = Animator()
-                
-                animator?.createImageSource(data: gifData)
-                animator?.prepareFrames()
-                
+                animator = Animator(data: gifData)
+                contentMode = (animator?.contentMode)!
                 didMove()
                 
                 layer.setNeedsDisplay()
             }
         }
     }
+    
     private func didMove() {
         if autoPlayAnimatedImage && animator != nil {
             if let _ = superview, let _ = window {
@@ -135,3 +135,4 @@ class YueImageView : UIImageView {
     }
 
 }
+

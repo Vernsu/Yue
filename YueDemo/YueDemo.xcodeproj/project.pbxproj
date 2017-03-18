@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		5E3935E71E7A9305004CB333 /* Animator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E3935E61E7A9305004CB333 /* Animator.swift */; };
+		5E3935F51E7C339F004CB333 /* FLAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 5E3935F11E7C339F004CB333 /* FLAnimatedImage.m */; };
+		5E3935F61E7C339F004CB333 /* FLAnimatedImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5E3935F31E7C339F004CB333 /* FLAnimatedImageView.m */; };
+		5E3935F71E7C339F004CB333 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5E3935F41E7C339F004CB333 /* Info.plist */; };
+		5E3936011E7CF393004CB333 /* 1.gif in Resources */ = {isa = PBXBuildFile; fileRef = 5E3936001E7CF393004CB333 /* 1.gif */; };
 		5EB81E101E79192B00E6651A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB81E0F1E79192B00E6651A /* AppDelegate.swift */; };
 		5EB81E121E79192B00E6651A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB81E111E79192B00E6651A /* ViewController.swift */; };
 		5EB81E151E79192B00E6651A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5EB81E131E79192B00E6651A /* Main.storyboard */; };
@@ -19,6 +23,13 @@
 
 /* Begin PBXFileReference section */
 		5E3935E61E7A9305004CB333 /* Animator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Animator.swift; path = Source/Animator.swift; sourceTree = "<group>"; };
+		5E3935F01E7C339F004CB333 /* FLAnimatedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLAnimatedImage.h; sourceTree = "<group>"; };
+		5E3935F11E7C339F004CB333 /* FLAnimatedImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FLAnimatedImage.m; sourceTree = "<group>"; };
+		5E3935F21E7C339F004CB333 /* FLAnimatedImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FLAnimatedImageView.h; sourceTree = "<group>"; };
+		5E3935F31E7C339F004CB333 /* FLAnimatedImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FLAnimatedImageView.m; sourceTree = "<group>"; };
+		5E3935F41E7C339F004CB333 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5E3935FE1E7C34BB004CB333 /* YueDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "YueDemo-Bridging-Header.h"; sourceTree = "<group>"; };
+		5E3936001E7CF393004CB333 /* 1.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = 1.gif; sourceTree = "<group>"; };
 		5EB81E0C1E79192B00E6651A /* YueDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = YueDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5EB81E0F1E79192B00E6651A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5EB81E111E79192B00E6651A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -50,6 +61,18 @@
 			name = Yue;
 			sourceTree = "<group>";
 		};
+		5E3935EF1E7C339F004CB333 /* FLAnimatedImage */ = {
+			isa = PBXGroup;
+			children = (
+				5E3935F01E7C339F004CB333 /* FLAnimatedImage.h */,
+				5E3935F11E7C339F004CB333 /* FLAnimatedImage.m */,
+				5E3935F21E7C339F004CB333 /* FLAnimatedImageView.h */,
+				5E3935F31E7C339F004CB333 /* FLAnimatedImageView.m */,
+				5E3935F41E7C339F004CB333 /* Info.plist */,
+			);
+			path = FLAnimatedImage;
+			sourceTree = "<group>";
+		};
 		5EB81E031E79192B00E6651A = {
 			isa = PBXGroup;
 			children = (
@@ -69,8 +92,11 @@
 		5EB81E0E1E79192B00E6651A /* YueDemo */ = {
 			isa = PBXGroup;
 			children = (
+				5E3936001E7CF393004CB333 /* 1.gif */,
 				5EB81E251E791A2C00E6651A /* hsk.gif */,
 				5EB81E0F1E79192B00E6651A /* AppDelegate.swift */,
+				5E3935FE1E7C34BB004CB333 /* YueDemo-Bridging-Header.h */,
+				5E3935EF1E7C339F004CB333 /* FLAnimatedImage */,
 				5E3935E81E7A93B5004CB333 /* Yue */,
 				5EB81E111E79192B00E6651A /* ViewController.swift */,
 				5EB81E131E79192B00E6651A /* Main.storyboard */,
@@ -141,9 +167,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5E3936011E7CF393004CB333 /* 1.gif in Resources */,
 				5EB81E1A1E79192B00E6651A /* LaunchScreen.storyboard in Resources */,
 				5EB81E261E791A2C00E6651A /* hsk.gif in Resources */,
 				5EB81E171E79192B00E6651A /* Assets.xcassets in Resources */,
+				5E3935F71E7C339F004CB333 /* Info.plist in Resources */,
 				5EB81E151E79192B00E6651A /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -157,8 +185,10 @@
 			files = (
 				5E3935E71E7A9305004CB333 /* Animator.swift in Sources */,
 				5EB81E121E79192B00E6651A /* ViewController.swift in Sources */,
+				5E3935F51E7C339F004CB333 /* FLAnimatedImage.m in Sources */,
 				5EB81E241E79198500E6651A /* YueImageView.swift in Sources */,
 				5EB81E101E79192B00E6651A /* AppDelegate.swift in Sources */,
+				5E3935F61E7C339F004CB333 /* FLAnimatedImageView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,6 +316,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = swift.diagon.me.YueDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "YueDemo/YueDemo-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
@@ -299,6 +330,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = swift.diagon.me.YueDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "YueDemo/YueDemo-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
