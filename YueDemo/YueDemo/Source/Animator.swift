@@ -12,6 +12,7 @@ import ImageIO
 import MobileCoreServices
 
 let defultMemoryLimit = 20
+let eps:Double = 1E-6
 
 struct AnimatedSegment {
     var image: UIImage?
@@ -22,17 +23,16 @@ struct AnimatedSegment {
 }
 
 class Animator{
-//    let maxFrameCount: Int = 100 //最大帧数
     var imageSource: CGImageSource! //imageSource 处理帧相关操作
     var animatedSegments = [AnimatedSegment]() //动画帧的集合
-    var frameCount = 0 // 帧的数量
-    var currentFrameIndex = 0 // 当前帧下标
-    var currentFrameDidShowTime : TimeInterval = 0.0 //当前帧已经显示的时间
+    var segmentCount = 0 // 帧的数量
+    var currentSegmentIndex = 0 // 当前帧下标
+    var currentSegmentDidShowTime : TimeInterval = 0.0 //当前帧已经显示的时间
     var loopCount = 0//循环次数
     let maxTimeStep: TimeInterval = 1.0//最大间隔
-    var currentFrame: UIImage? {
+    var currentImage: UIImage? {
         if isCache {
-            return frameAtIndex(index: currentFrameIndex)
+            return segmentAtIndex(index: currentSegmentIndex)
         }else{
             let currentImage = currentSegmentWithoutCache?.image
             preloadNextSegmentAsynchronously()
@@ -40,43 +40,31 @@ class Animator{
         }
         
     }
-    func preloadNextSegmentAsynchronously() {
-        preloadQueue.async { [weak self] in
-            var preloadindex = (self?.currentFrameIndex)! + 1 // 一直累加
-            // 这里取了余数 即 当index = count 时，重置为0
-            
-            preloadindex = preloadindex % (self?.frameCount)!
-            
-            self?.nextSegmentWithoutCache = self?.prepareFrame(index: preloadindex)
-            
-        }
-        
-    }
+
     var nextSegmentWithoutCache : AnimatedSegment?
     var currentSegmentWithoutCache : AnimatedSegment?
+
+    var coverImage : UIImage? //Gif 的封面图片
+    var sizeForImageSource : Int = 0 //imageSource 大小估算
+    var isCache : Bool = true
     
     init(data:NSData){
         self.createImageSource(data: data)
         self.CalculateImageSize()
         if self.isCache {
             print("有缓存")
-            self.prepareFramesAsynchronously()
+            self.prepareSegmentsAsynchronously()
         }else{
             print("没有缓存")
         }
         
     }
-    //2.0
-    var coverImage : UIImage? //Gif 的封面图片
-    var sizeForImageSource : Int = 0
-    var isCache : Bool = true
-    
-    
-    
+
+//缓存池
 //    var frameCacheSizeCurrent: Int = 0 // 当前被缓存帧的数量(范围是1到frameCount)
 //    var frameCacheSizeMax: Int = 0 //最多允许缓存多少帧 0意味着没有限制
     
-    var contentMode: UIViewContentMode = .scaleAspectFill
+    var contentMode: UIViewContentMode = .scaleToFill
     
     private lazy var preloadQueue: DispatchQueue = {
         return DispatchQueue(label: "com.yue.preloadQueue")
@@ -84,9 +72,9 @@ class Animator{
     
     //取出对应缓存的图片
     //为了立即返回结果，在主线程调用，缓存不存在则返回nil
-    func frameLazilyCachedAtIndex( index: Int ) -> AnimatedSegment?{
-        return nil
-    }
+//    func frameLazilyCachedAtIndex( index: Int ) -> AnimatedSegment?{
+//        return nil
+//    }
     /**
      根据data创建 CGImageSource
      
@@ -97,11 +85,9 @@ class Animator{
         // kCGImageSourceTypeIdentifierHint : 指明source type
         let options: NSDictionary = [kCGImageSourceShouldCache as String: NSNumber(value: false)]
         
-        //todo -- 这里有个坑，imageSource可能不存在 Swift中怎么处理更好？
+        //todo -- imageSource可能不存在
         imageSource = CGImageSourceCreateWithData(data, options)
 
-        
-        
         guard let imageSourceContainerType = CGImageSourceGetType(imageSource),
             UTTypeConformsTo(imageSourceContainerType, kUTTypeGIF) else{
             print("不是gif 图片")
@@ -112,7 +98,7 @@ class Animator{
     
 
     /// 准备某照片的 的 AnimatedFrame
-    func prepareFrame(index: Int) -> AnimatedSegment {
+    func prepareSegment(index: Int) -> AnimatedSegment {
         // 获取对应帧的 CGImage
         guard let imageRef = CGImageSourceCreateImageAtIndex(imageSource, index , nil) else {
             return AnimatedSegment.null()
@@ -124,42 +110,57 @@ class Animator{
             else{
                 return AnimatedSegment.null()
         }
-        var delayTime : NSNumber
-        if let time = (gifInfo[kCGImagePropertyGIFUnclampedDelayTime as String] as? NSNumber){
+        var delayTime : Double
+        if let time = (gifInfo[kCGImagePropertyGIFUnclampedDelayTime as String] as? Double),
+            time > eps
+            {
             delayTime = time
-        }else if let time = (gifInfo[kCGImagePropertyGIFDelayTime as String] as? NSNumber){
+        }else if let time = (gifInfo[kCGImagePropertyGIFDelayTime as String] as? Double){
             delayTime = time
         }else{
             return AnimatedSegment.null()
         }
         
-        //这里或许可以直接用 cgImage一个参数就够了？
-        let image = UIImage(cgImage: imageRef , scale: UIScreen.main.scale , orientation: UIImageOrientation.up)
+        //这里或许可以直接用 cgImage一个参数就够了？应该默认就是主屏幕scale
+//        let image = UIImage(cgImage: imageRef , scale: UIScreen.main.scale , orientation: UIImageOrientation.up)
+         let image = UIImage(cgImage: imageRef)
         
         return AnimatedSegment(image: image, delayTime: Double(delayTime))
     }
     
-    func prepareFramesAsynchronously() {
+    func prepareSegmentsAsynchronously() {
         preloadQueue.async { [weak self] in
-            self?.prepareFrames()
+            self?.prepareSegments()
         }
     }
     
+    func preloadNextSegmentAsynchronously() {
+        preloadQueue.async { [weak self] in
+            var preloadindex = (self?.currentSegmentIndex)! + 1 // 一直累加
+            // 这里取了余数 即 当index = count 时，重置为0
+            
+            preloadindex = preloadindex % (self?.segmentCount)!
+            
+            self?.nextSegmentWithoutCache = self?.prepareSegment(index: preloadindex)
+            
+        }
+        
+    }
     func CalculateImageSize(){
-        coverImage = prepareFrame(index: 0).image
+        coverImage = prepareSegment(index: 0).image
         // 总共帧数
-        currentSegmentWithoutCache = prepareFrame(index: 0)
-        frameCount = CGImageSourceGetCount(imageSource)
+        currentSegmentWithoutCache = prepareSegment(index: 0)
+        segmentCount = CGImageSourceGetCount(imageSource)
         guard let image = coverImage else{
            return
         }
-        sizeForImageSource = Int(image.size.height*image.size.width*4)*frameCount/(1000*1008)
+        sizeForImageSource = Int(image.size.height * image.size.width * 4) * segmentCount / (1000 * 1008)
         isCache = sizeForImageSource < defultMemoryLimit
     }
     /**
      预备所有frames
      */
-    func prepareFrames() {
+    func prepareSegments() {
         
         
         //得到内置的循环次数
@@ -169,9 +170,7 @@ class Animator{
             self.loopCount = loopCount
         }
         
-
-//        let frameToProcess = min(frameCount, maxFrameCount)
-        let frameToProcess = frameCount
+        let frameToProcess = segmentCount
         
         
         animatedSegments.reserveCapacity(frameToProcess)
@@ -182,7 +181,7 @@ class Animator{
         
         // 上面相当于这个
         for i in 0..<frameToProcess {
-            animatedSegments.append(prepareFrame(index: i))
+            animatedSegments.append(prepareSegment(index: i))
         }
         
     }
@@ -191,10 +190,9 @@ class Animator{
     /**
      根据下标获取图片
      */
-    func frameAtIndex(index: Int) -> UIImage? {
+    func segmentAtIndex(index: Int) -> UIImage? {
 
          return animatedSegments[safe: index]?.image
-        
         
     }
     
@@ -204,51 +202,49 @@ class Animator{
         }else{
             return updateCurrentFrameWithoutCache(duration: duration)
         }
-
-        
  
     }
     
     func updateCurrentFrameWithCache(duration: CFTimeInterval) -> Bool {
-                // 计算当前帧已经显示的时间 每次进来都累加 直到frameDuration  <= timeSinceLastFrameChange 时候才继续走下去
-        currentFrameDidShowTime += min(maxTimeStep, duration)
+         // 计算当前帧已经显示的时间 每次进来都累加 直到frameDuration  <= timeSinceLastFrameChange 时候才继续走下去
+        currentSegmentDidShowTime += min(maxTimeStep, duration)
         
         
-        guard let frameDuration = animatedSegments[safe:currentFrameIndex]?.delayTime,
-            duration <= currentFrameDidShowTime else {
+        guard let frameDuration = animatedSegments[safe:currentSegmentIndex]?.delayTime,
+            duration <= currentSegmentDidShowTime else {
                 return false
         }
         // 减掉 我们每帧间隔时间
-        currentFrameDidShowTime -= frameDuration
+        currentSegmentDidShowTime -= frameDuration
         
-        addOneToCurrentFrameIndex()
+        addOneToCurrentSegmentIndex()
         
         return true
     }
     func updateCurrentFrameWithoutCache(duration: CFTimeInterval) -> Bool {
-        currentFrameDidShowTime += min(maxTimeStep, duration)
         
+        currentSegmentDidShowTime += min(maxTimeStep, duration)
         
         guard let frameDuration = currentSegmentWithoutCache?.delayTime,
-            duration <= currentFrameDidShowTime else {
+            duration <= currentSegmentDidShowTime else {
                 return false
         }
         currentSegmentWithoutCache = nextSegmentWithoutCache
         
         // 减掉 我们每帧间隔时间
-        currentFrameDidShowTime -= frameDuration
+        currentSegmentDidShowTime -= frameDuration
         //        let lastFrameIndex = currentFrameIndex
         
-        addOneToCurrentFrameIndex()
+        addOneToCurrentSegmentIndex()
         
         return true
         
     }
     
-    func addOneToCurrentFrameIndex(){
-        currentFrameIndex += 1 // 一直累加
+    func addOneToCurrentSegmentIndex(){
+        currentSegmentIndex += 1 // 一直累加
         // 这里取了余数 即 当index = count 时，重置为0
-        currentFrameIndex = currentFrameIndex % frameCount
+        currentSegmentIndex = currentSegmentIndex % segmentCount
     }
     
     

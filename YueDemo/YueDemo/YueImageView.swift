@@ -88,7 +88,7 @@ class YueImageView : UIImageView {
         }
     }
     override func display(_ layer: CALayer) {
-        if let currentFrame = animator?.currentFrame {
+        if let currentFrame = animator?.currentImage {
             layer.contents = currentFrame.cgImage
         } else {
             layer.contents = image?.cgImage
